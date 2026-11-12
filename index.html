@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DailySAT - Micro Practice</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- KaTeX for Math -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .fade-in { animation: fadeIn 0.4s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 h-full flex flex-col items-center">
+
+  <!-- HEADER -->
+  <header class="w-full max-w-2xl px-6 py-4 flex items-center justify-between mt-4">
+    <div class="flex items-center gap-2 cursor-pointer" onclick="goHome()">
+      <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-lg">D</div>
+      <h1 class="text-xl font-bold tracking-tight text-slate-900">Daily<span class="text-indigo-600">SAT</span></h1>
+    </div>
+    
+    <!-- Streak Display -->
+    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-100 text-orange-600 rounded-full font-bold text-sm shadow-sm border border-orange-200">
+      <i class="fa-solid fa-fire"></i>
+      <span id="streak-counter">0</span>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="w-full max-w-2xl px-4 flex-1 flex flex-col mt-8 lg:mt-16">
+    
+    <!-- VIEW 1: HOME (SUBJECT SELECTION) -->
+    <div id="view-home" class="fade-in flex flex-col items-center text-center space-y-8">
+      <div class="space-y-3">
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Your daily brain warmup.</h2>
+        <p class="text-slate-500 text-lg">One question. Two minutes. Zero stress.</p>
+      </div>
+
+      <div class="w-full flex flex-col sm:flex-row gap-4 mt-8">
+        <!-- Math Card -->
+        <button onclick="startDaily('math')" class="flex-1 group relative bg-white p-8 rounded-3xl border-2 border-slate-200 hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/10 transition-all text-left overflow-hidden">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-indigo-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+          <div class="relative z-10">
+            <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center text-xl mb-4">
+              <i class="fa-solid fa-calculator"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-1 text-slate-900">Math</h3>
+            <p class="text-sm text-slate-500">Algebra, Geometry, & Data</p>
+          </div>
+        </button>
+
+        <!-- Reading & Writing Card -->
+        <button onclick="startDaily('rw')" class="flex-1 group relative bg-white p-8 rounded-3xl border-2 border-slate-200 hover:border-emerald-500 hover:shadow-xl hover:shadow-emerald-500/10 transition-all text-left overflow-hidden">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+          <div class="relative z-10">
+            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-xl mb-4">
+              <i class="fa-solid fa-book-open"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-1 text-slate-900">Reading & Writing</h3>
+            <p class="text-sm text-slate-500">Grammar & Comprehension</p>
+          </div>
+        </button>
+      </div>
+      
+      <p id="daily-completion-msg" class="text-sm font-medium text-emerald-600 hidden mt-4 bg-emerald-50 px-4 py-2 rounded-full">
+        <i class="fa-solid fa-check-circle mr-1"></i> You've completed your daily questions!
+      </p>
+    </div>
+
+    <!-- VIEW 2: QUESTION & RESULTS -->
+    <div id="view-question" class="hidden fade-in flex flex-col space-y-6 w-full pb-12">
+      
+      <!-- Top Bar: Subject & Question Type -->
+      <div class="flex items-center justify-between">
+        <div id="q-subject-badge" class="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full uppercase tracking-wide">
+          Math
+        </div>
+        <button onclick="goHome()" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+
+      <!-- The Prompt -->
+      <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
+        <div id="q-prompt" class="text-slate-800 text-lg sm:text-xl leading-relaxed font-medium">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- The Options -->
+      <div id="q-options" class="flex flex-col gap-3">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Feedback Area (Hidden initially) -->
+      <div id="feedback-area" class="hidden flex flex-col gap-4 mt-2 fade-in">
+        
+        <!-- Explanation Box -->
+        <div id="explanation-box" class="p-6 rounded-2xl border">
+          <div class="flex items-center gap-2 mb-2 font-bold text-lg" id="feedback-title">
+            <!-- Populated by JS -->
+          </div>
+          <div id="explanation-text" class="text-slate-700 leading-relaxed text-sm">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Wordle-style Stats & Actions -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+          
+          <div class="text-center sm:text-left">
+            <p class="text-sm text-slate-500 font-medium">Global Stats</p>
+            <p class="text-lg font-bold text-slate-900"><span id="mock-stat-percent">64%</span> of students got this right today.</p>
+          </div>
+
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <button onclick="shareResult()" class="flex-1 sm:flex-none px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold shadow-md active:scale-95 transition-all text-sm flex items-center justify-center gap-2">
+              <i class="fa-solid fa-share-nodes"></i> Share
+            </button>
+            <button onclick="loadOneMore()" id="btn-one-more" class="flex-1 sm:flex-none px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-semibold active:scale-95 transition-all text-sm flex items-center justify-center gap-2 border border-slate-200">
+              One More <i class="fa-solid fa-rotate-right"></i>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <script>
+    // --- 1. MOCK DATABASE ---
+    const db = {
+      math: [
+        {
+          id: "m1",
+          prompt: "If \\(3x + 7 = 22\\), what is the value of \\(6x - 5\\)?",
+          options: ["10", "25", "27", "39"],
+          correct: 1,
+          explanation: "Don't rush to plug and chug! First, solve for \\(x\\):<br> \\(3x = 15 \\implies x = 5\\).<br> Then, plug it into the second equation: \\(6(5) - 5 = 30 - 5 = 25\\).<br><br>💡 <b>Aha! trick:</b> Notice \\(6x\\) is exactly double \\(3x\\). If \\(3x = 15\\), then \\(6x = 30\\). Subtract 5 to get 25!"
+        },
+        {
+          id: "m2",
+          prompt: "A container holds a mixture of red and blue marbles. The ratio of red marbles to blue marbles is \\(4:7\\). If there are 84 blue marbles, how many <b>total</b> marbles are there?",
+          options: ["48", "112", "132", "147"],
+          correct: 2,
+          explanation: "Since the ratio of blue is 7 parts, and we have 84 blue marbles, each 'part' is exactly 12 marbles (\\(84 \\div 7 = 12\\)).<br><br>💡 <b>Aha! trick:</b> Don't calculate the red marbles separately! The total ratio parts is \\(4 + 7 = 11\\). Just multiply \\(11 \\times 12 = 132\\)."
+        },
+        {
+          id: "m3",
+          prompt: "The function \\(f(x) = x^2 - 6x + 13\\) can be rewritten as \\(f(x) = (x - 3)^2 + k\\). What is the value of \\(k\\)?",
+          options: ["-3", "4", "9", "13"],
+          correct: 1,
+          explanation: "We are completing the square. If you expand \\((x - 3)^2\\), you get \\(x^2 - 6x + 9\\). <br><br>To make it equal to the original equation ending in \\(+13\\), we need to add 4. Therefore, \\(k = 4\\)."
+        },
+        {
+          id: "m4",
+          prompt: "In right triangle \\(ABC\\), the measure of \\(\\angle C\\) is \\(90^\\circ\\). If \\(\\sin(A) = \\frac{3}{5}\\), what is the value of \\(\\cos(B)\\)?",
+          options: ["\\(\\frac{3}{5}\\)", "\\(\\frac{4}{5}\\)", "\\(\\frac{5}{3}\\)", "\\(\\frac{5}{4}\\)"],
+          correct: 0,
+          explanation: "💡 <b>Aha! trick:</b> In any right triangle, the sine of one acute angle is always exactly equal to the cosine of the other acute angle! This is the co-function identity: \\(\\sin(A) = \\cos(90^\\circ - A) = \\cos(B)\\). <br><br>No math required once you know the rule: it's just \\(\\frac{3}{5}\\)."
+        }
+      ],
+      rw: [
+        {
+          id: "r1",
+          prompt: "For decades, oceanographers believed hydrothermal vents were isolated ecosystems. However, recent observations revealed that these benthic communities display surprisingly <b>dynamic</b> metabolic exchanges, constantly adapting to shifting thermal plumes.<br><br>As used in the text, what does the word <b>dynamic</b> most nearly mean?",
+          options: ["Unpredictable", "Energetic and changing", "Fragile", "Violent"],
+          correct: 1,
+          explanation: "💡 <b>Aha! trick:</b> Look at the surrounding context clues. The text says they are 'constantly adapting' and involved in 'exchanges'. This points directly to energetic, continuous change (Choice B), rather than just being random or violent."
+        },
+        {
+          id: "r2",
+          prompt: "Botanist Dr. Elena Rostova spent three years documenting alpine flora in the Pamir ________ discovered two previously uncataloged species of cushion plants thriving at high altitudes.<br><br>Which choice completes the text so that it conforms to the conventions of Standard English?",
+          options: ["Mountains; and", "Mountains, she", "Mountains, where she", "Mountains she"],
+          correct: 2,
+          explanation: "We need to connect the location (Pamir Mountains) to the action of discovery without creating a run-on sentence or a fragment.<br><br>💡 <b>Aha! trick:</b> 'where she' creates a relative clause that smoothly modifies the location. Choices A and B create punctuation errors with the surrounding verbs."
+        },
+        {
+          id: "r3",
+          prompt: "While honeybees are highly social and live in hives of thousands, most of the world's 20,000 bee species are actually ________ preferring to nest alone in small burrows.<br><br>Which choice completes the text with the most logical and precise word or phrase?",
+          options: ["aggressive", "solitary", "migratory", "unproductive"],
+          correct: 1,
+          explanation: "The sentence sets up a direct contrast (indicated by 'While') between honeybees, which are 'highly social and live in hives', and the other bees.<br><br>The exact opposite of social/group-living is 'solitary', which perfectly matches 'preferring to nest alone'."
+        }
+      ]
+    };
+
+    // --- 2. STATE MANAGEMENT & LOCAL STORAGE ---
+    let currentSubject = null;
+    let currentQuestion = null;
+    let isDaily = true;
+    let hasAnswered = false;
+    let selectedOptionIdx = null;
+
+    // Initialize Streak on load
+    let streak = parseInt(localStorage.getItem('satStreak')) || 0;
+    let lastPlayDate = localStorage.getItem('satLastPlayDate');
+    
+    // Check if we need to reset streak (missed a day)
+    const todayStr = new Date().toLocaleDateString();
+    if (lastPlayDate && lastPlayDate !== todayStr) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      if (lastPlayDate !== yesterday.toLocaleDateString()) {
+        streak = 0; // Streak broken
+        localStorage.setItem('satStreak', 0);
+      }
+    }
+    document.getElementById('streak-counter').innerText = streak;
+
+    // Check what they've played today
+    let playedToday = JSON.parse(localStorage.getItem('satPlayedToday') || '{"math":false, "rw":false}');
+    if (localStorage.getItem('satTodayDate') !== todayStr) {
+       playedToday = {math: false, rw: false};
+       localStorage.setItem('satTodayDate', todayStr);
+    }
+    
+    updateHomeUI();
+
+    // --- 3. CORE FUNCTIONS ---
+
+    function updateHomeUI() {
+      if (playedToday.math && playedToday.rw) {
+        document.getElementById('daily-completion-msg').classList.remove('hidden');
+      }
+    }
+
+    function goHome() {
+      document.getElementById('view-question').classList.add('hidden');
+      document.getElementById('view-home').classList.remove('hidden');
+      document.getElementById('feedback-area').classList.add('hidden');
+      updateHomeUI();
+    }
+
+    function startDaily(subject) {
+      currentSubject = subject;
+      isDaily = true;
+      hasAnswered = false;
+      selectedOptionIdx = null;
+
+      // Wordle mechanic: Everyone gets the same question today based on the date.
+      // We use the day of the year to pick the index consistently for all users.
+      const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+      const qIndex = dayOfYear % db[subject].length;
+      
+      currentQuestion = db[subject][qIndex];
+      renderQuestion();
+    }
+
+    function loadOneMore() {
+      isDaily = false;
+      hasAnswered = false;
+      selectedOptionIdx = null;
+      document.getElementById('feedback-area').classList.add('hidden');
+      
+      // Pick a random question that isn't the current one
+      let randomIdx;
+      do {
+        randomIdx = Math.floor(Math.random() * db[currentSubject].length);
+      } while (db[currentSubject][randomIdx].id === currentQuestion.id && db[currentSubject].length > 1);
+      
+      currentQuestion = db[currentSubject][randomIdx];
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      document.getElementById('view-home').classList.add('hidden');
+      document.getElementById('view-question').classList.remove('hidden');
+      
+      // Set styling based on subject
+      const badge = document.getElementById('q-subject-badge');
+      if (currentSubject === 'math') {
+        badge.innerText = 'Math';
+        badge.className = 'px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full uppercase tracking-wide';
+      } else {
+        badge.innerText = 'Reading & Writing';
+        badge.className = 'px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full uppercase tracking-wide';
+      }
+
+      document.getElementById('q-prompt').innerHTML = currentQuestion.prompt;
+
+      const optsContainer = document.getElementById('q-options');
+      optsContainer.innerHTML = '';
+      
+      const labels = ['A', 'B', 'C', 'D'];
+      
+      currentQuestion.options.forEach((optText, idx) => {
+        const btn = document.createElement('button');
+        btn.id = `opt-${idx}`;
+        btn.className = "w-full text-left p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 transition-all flex items-start gap-4 text-slate-700 font-medium";
+        btn.onclick = () => submitAnswer(idx);
+        
+        btn.innerHTML = `
+          <span class="w-7 h-7 shrink-0 rounded-lg font-bold text-xs flex items-center justify-center bg-slate-100 text-slate-500 mt-0.5" id="lbl-${idx}">
+            ${labels[idx]}
+          </span>
+          <span class="flex-1 leading-relaxed pt-1">${optText}</span>
+        `;
+        optsContainer.appendChild(btn);
+      });
+
+      // Render Math if KaTeX is loaded
+      if (window.katex) {
+        setTimeout(renderMath, 10);
+      }
+    }
+
+    function submitAnswer(idx) {
+      if (hasAnswered) return; // Only one attempt per load!
+      hasAnswered = true;
+      selectedOptionIdx = idx;
+      
+      const isCorrect = idx === currentQuestion.correct;
+
+      // Update streaks and daily status if it's their first time doing THIS subject today
+      if (isDaily && !playedToday[currentSubject]) {
+        playedToday[currentSubject] = true;
+        localStorage.setItem('satPlayedToday', JSON.stringify(playedToday));
+        
+        // Give streak point for participating daily
+        if (lastPlayDate !== todayStr) {
+            streak++;
+            localStorage.setItem('satStreak', streak);
+            localStorage.setItem('satLastPlayDate', todayStr);
+            document.getElementById('streak-counter').innerText = streak;
+        }
+      }
+
+      // Style the options
+      currentQuestion.options.forEach((_, i) => {
+        const btn = document.getElementById(`opt-${i}`);
+        const lbl = document.getElementById(`lbl-${i}`);
+        
+        if (i === currentQuestion.correct) {
+          // Highlight correct answer
+          btn.className = "w-full text-left p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50 flex items-start gap-4 text-emerald-900 font-medium";
+          lbl.className = "w-7 h-7 shrink-0 rounded-lg font-bold text-xs flex items-center justify-center bg-emerald-500 text-white mt-0.5";
+        } else if (i === idx && !isCorrect) {
+          // Highlight wrong choice
+          btn.className = "w-full text-left p-4 rounded-2xl border-2 border-rose-400 bg-rose-50 flex items-start gap-4 text-rose-900 font-medium";
+          lbl.className = "w-7 h-7 shrink-0 rounded-lg font-bold text-xs flex items-center justify-center bg-rose-500 text-white mt-0.5";
+        } else {
+          // Fade out others
+          btn.classList.add('opacity-50', 'pointer-events-none');
+        }
+      });
+
+      // Show Feedback Area
+      const fbArea = document.getElementById('feedback-area');
+      const fbTitle = document.getElementById('feedback-title');
+      const expBox = document.getElementById('explanation-box');
+      
+      fbArea.classList.remove('hidden');
+
+      if (isCorrect) {
+        fbTitle.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 text-xl"></i> <span class="text-emerald-700">Nailed it!</span>`;
+        expBox.className = "p-6 rounded-2xl border-2 border-emerald-100 bg-emerald-50/50";
+      } else {
+        fbTitle.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-500 text-xl"></i> <span class="text-rose-700">Not quite.</span>`;
+        expBox.className = "p-6 rounded-2xl border-2 border-orange-100 bg-orange-50/50";
+      }
+
+      document.getElementById('explanation-text').innerHTML = currentQuestion.explanation;
+      
+      // Randomize fake stat for fun
+      const mockStat = Math.floor(Math.random() * 30) + 50; // Between 50% and 80%
+      document.getElementById('mock-stat-percent').innerText = `${mockStat}%`;
+
+      // Render math in explanation
+      if (window.katex) setTimeout(renderMath, 10);
+    }
+
+    // --- 4. UTILITIES ---
+
+    function shareResult() {
+      const subjIcon = currentSubject === 'math' ? '🧠 Math' : '📖 Reading';
+      const resultIcon = (selectedOptionIdx === currentQuestion.correct) ? '🟩' : '🟥';
+      const textToShare = `DailySAT: ${subjIcon} ${resultIcon} | 🔥 ${streak}-day streak!\nTry it at dailysat.xyz`;
+
+      // Fallback copy mechanism
+      try {
+        navigator.clipboard.writeText(textToShare).then(() => {
+          showShareToast();
+        });
+      } catch (err) {
+        const textArea = document.createElement("textarea");
+        textArea.value = textToShare;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        textArea.remove();
+        showShareToast();
+      }
+    }
+
+    function showShareToast() {
+      const btn = document.querySelector('button[onclick="shareResult()"]');
+      const originalHtml = btn.innerHTML;
+      btn.innerHTML = `<i class="fa-solid fa-check"></i> Copied!`;
+      btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+      btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+      
+      setTimeout(() => {
+        btn.innerHTML = originalHtml;
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+      }, 2000);
+    }
+
+    function renderMath() {
+      const elements = [document.getElementById('q-prompt'), document.getElementById('explanation-text')];
+      document.querySelectorAll('#q-options button span.flex-1').forEach(el => elements.push(el));
+      
+      elements.forEach(el => {
+        if (!el) return;
+        let html = el.innerHTML;
+        // Strip out existing KaTeX spans if re-rendering
+        html = html.replace(/\\<span class="katex">.*?<\/span\>/g, ''); 
+        
+        const regex = /\\\((.*?)\\\)/g;
+        el.innerHTML = html.replace(regex, (match, formula) => {
+          try {
+            return katex.renderToString(formula, { throwOnError: false });
+          } catch (e) {
+            return match;
+          }
+        });
+      });
+    }
+
+  </script>
+</body>
+</html>
